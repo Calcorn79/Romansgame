@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Romans Vocabulary Match-Up! | Kids Bible Game</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Fredoka for playful kid-friendly headings & Nunito for clear reading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #fefce8 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    /* Tactile 3D Button & Card Styling */
+    .game-card {
+      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.16s ease, background-color 0.2s ease, border-color 0.2s ease;
+      box-shadow: 0 4px 0 rgba(15, 23, 42, 0.12);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .game-card:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 rgba(15, 23, 42, 0.15);
+    }
+
+    .game-card:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 rgba(15, 23, 42, 0.12);
+    }
+
+    .card-selected {
+      transform: translateY(-3px) scale(1.015) !important;
+      box-shadow: 0 6px 0 #0284c7, 0 0 0 4px rgba(56, 189, 248, 0.4) !important;
+    }
+
+    .card-matched {
+      box-shadow: 0 2px 0 #15803d !important;
+      transform: scale(0.98);
+    }
+
+    /* Gentle Shake Animation for Mismatch */
+    @keyframes gentleShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px) rotate(-1deg); }
+      40% { transform: translateX(8px) rotate(1deg); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    .animate-shake {
+      animation: gentleShake 0.42s ease-in-out;
+    }
+
+    /* Pop-in Animation for Match */
+    @keyframes popSuccess {
+      0% { transform: scale(0.95); }
+      50% { transform: scale(1.04); }
+      100% { transform: scale(0.98); }
+    }
+
+    .animate-pop {
+      animation: popSuccess 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Flashcard 3D Flip */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+
+    /* Custom Scrollbar for Round Pills */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Confetti Canvas */
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased selection:bg-amber-200 selection:text-slate-900">
+
+  <!-- Confetti Celebration Layer -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- Main App Container -->
+  <div class="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 flex flex-col min-h-screen">
+
+    <!-- Header & Controls -->
+    <header class="bg-white/90 backdrop-blur-md rounded-3xl p-4 sm:p-5 shadow-md border-2 border-sky-100 mb-4">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        
+        <!-- Title & Badge -->
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-md shrink-0 border-2 border-amber-200">
+            <!-- Bible / Scroll SVG Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 sm:w-8 sm:h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+              <path d="M12 6v7"/>
+              <path d="M9 9h6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">
+                Romans Vocabulary Match-Up!
+              </h1>
+              <span class="px-2.5 py-0.5 text-xs font-extrabold uppercase tracking-wider bg-sky-100 text-sky-700 rounded-full border border-sky-200">
+                49 Words
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 font-semibold">
+              Tap a Bible word on the left, then tap its matching meaning on the right!
+            </p>
+          </div>
+        </div>
+
+        <!-- Mode Switcher & Utility Toggles -->
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Play vs Study Toggle -->
+          <div class="inline-flex bg-slate-100 p-1 rounded-2xl border border-slate-200">
+            <button id="btnModeMatch" onclick="setAppMode('match')" class="px-3.5 py-1.5 rounded-xl text-sm font-bold transition-all bg-sky-500 text-white shadow-sm flex items-center gap-1.5">
+              <span>🎯</span> Match Game
+            </button>
+            <button id="btnModeStudy" onclick="setAppMode('study')" class="px-3.5 py-1.5 rounded-xl text-sm font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
+              <span>🃏</span> Study Flashcards
+            </button>
+          </div>
+
+          <!-- Timer Toggle -->
+          <button id="btnTimerToggle" onclick="toggleTimerVisibility()" title="Show or Hide Timer" class="px-3 py-2 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs sm:text-sm font-bold transition flex items-center gap-1.5">
+            <span id="timerIcon">⏱️</span>
+            <span id="timerDisplay">00:00</span>
+          </button>
+
+          <!-- Sound Toggle -->
+          <button id="btnSoundToggle" onclick="toggleSound()" title="Toggle Sound Effects" class="p-2.5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition" aria-label="Toggle Sound">
+            <span id="soundIcon" class="text-base leading-none">🔊</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Round Selector Bar -->
+      <div class="mt-4 pt-3 border-t border-slate-100">
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="roundSelectorBar">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+    </header>
+
+    <!-- Status / Score Bar (Visible in Match Mode) -->
+    <div id="matchStatsBar" class="bg-white/90 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-sm border-2 border-slate-100 mb-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 sm:gap-5 flex-wrap">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block">Current Round</span>
+          <span id="currentRoundTitle" class="font-display font-bold text-base sm:text-lg text-sky-700">Round 1: The Gospel & People of God</span>
+        </div>
+
+        <div class="h-8 w-px bg-slate-200 hidden sm:block"></div>
+
+        <!-- Progress Pill -->
+        <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl">
+          <span class="text-emerald-600 font-extrabold text-sm">✅ Matched:</span>
+          <span id="matchedCounter" class="font-display font-bold text-emerald-800 text-base">0 / 9</span>
+        </div>
+
+        <!-- Streak Pill -->
+        <div class="flex items-center gap-1.5 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-xl">
+          <span class="text-orange-500 font-extrabold text-sm">🔥 Streak:</span>
+          <span id="streakCounter" class="font-display font-bold text-orange-700 text-base">0</span>
+        </div>
+
+        <!-- Hide Matched Toggle -->
+        <label class="inline-flex items-center gap-2 cursor-pointer bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold text-slate-600 select-none">
+          <input type="checkbox" id="chkHideMatched" onchange="toggleHideMatched()" class="w-4 h-4 rounded text-sky-500 focus:ring-sky-400">
+          <span>Clear matched cards</span>
+        </label>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2 ml-auto">
+        <button onclick="restartCurrentRound()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 border border-slate-200">
+          <span>🔄</span> Shuffle / Restart
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Feedback Banner -->
+    <div id="feedbackBanner" class="mb-4 px-4 py-2.5 rounded-2xl text-center font-bold text-sm sm:text-base transition-all duration-200 bg-sky-100/80 text-sky-800 border border-sky-200">
+      Pick any word or definition to start matching!
+    </div>
+
+    <!-- ==================== MATCH GAME ARENA ==================== -->
+    <main id="matchGameView" class="flex-1 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 items-start pb-8">
+      
+      <!-- Left Column: Terms (5 cols on desktop) -->
+      <section class="md:col-span-5 bg-white/75 backdrop-blur-sm rounded-3xl p-3.5 sm:p-4 border-2 border-sky-100 shadow-sm">
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h2 class="font-display font-bold text-lg text-sky-800 flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-sky-500 text-white text-sm flex items-center justify-center">W</span>
+            Vocabulary Words
+          </h2>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tap One</span>
+        </div>
+        <div id="termsList" class="flex flex-col gap-2.5">
+          <!-- Term Cards injected here -->
+        </div>
+      </section>
+
+      <!-- Right Column: Definitions (7 cols on desktop) -->
+      <section class="md:col-span-7 bg-white/75 backdrop-blur-sm rounded-3xl p-3.5 sm:p-4 border-2 border-amber-100 shadow-sm">
+        <div class="flex items-center justify-between mb-3 px-1">
+          <h2 class="font-display font-bold text-lg text-amber-800 flex items-center gap-2">
+            <span class="w-7 h-7 rounded-lg bg-amber-500 text-white text-sm flex items-center justify-center">D</span>
+            Meanings & Definitions
+          </h2>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tap Matching Meaning</span>
+        </div>
+        <div id="definitionsList" class="flex flex-col gap-2.5">
+          <!-- Definition Cards injected here -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ==================== STUDY FLASHCARDS ARENA ==================== -->
+    <main id="studyFlashcardsView" class="hidden flex-1 flex flex-col items-center justify-center pb-8">
+      <div class="w-full max-w-2xl">
+        <div class="flex items-center justify-between mb-3 px-2">
+          <span id="studyRoundLabel" class="font-display font-bold text-sky-800 text-base sm:text-lg">Round 1: The Gospel & People of God</span>
+          <span id="flashcardCounter" class="px-3 py-1 rounded-full bg-white border border-slate-200 font-bold text-sm text-slate-600 shadow-xs">
+            Card 1 of 9
+          </span>
+        </div>
+
+        <!-- Flashcard Container -->
+        <div onclick="flipFlashcard()" class="perspective-1000 cursor-pointer w-full h-72 sm:h-80 select-none">
+          <div id="flashcardInner" class="relative w-full h-full transform-style-3d">
+            
+            <!-- Front of Card (Term) -->
+            <div class="absolute inset-0 backface-hidden bg-white rounded-3xl border-4 border-sky-300 shadow-xl p-6 sm:p-10 flex flex-col items-center justify-center text-center">
+              <span class="px-3 py-1 rounded-full bg-sky-100 text-sky-700 text-xs font-extrabold uppercase tracking-wider mb-4">
+                Bible Word
+              </span>
+              <h3 id="flashcardTerm" class="font-display font-bold text-3xl sm:text-5xl text-slate-800">
+                apostle
+              </h3>
+              <p class="mt-6 text-xs sm:text-sm font-bold text-slate-400 flex items-center gap-1.5">
+                <span>👆</span> Tap card to flip and see the definition
+              </p>
+            </div>
+
+            <!-- Back of Card (Definition) -->
+            <div class="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl border-4 border-amber-300 shadow-xl p-6 sm:p-10 flex flex-col items-center justify-center text-center">
+              <span id="flashcardBackTermBadge" class="px-3 py-1 rounded-full bg-amber-200/80 text-amber-900 text-xs font-extrabold uppercase tracking-wider mb-3">
+                apostle
+              </span>
+              <p id="flashcardDef" class="font-bold text-lg sm:text-2xl text-slate-800 leading-relaxed">
+                a person who personally knew Jesus and was authorized by God to spread His Word
+              </p>
+              <p class="mt-6 text-xs sm:text-sm font-bold text-amber-700/70">
+                👆 Tap card to flip back
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Flashcard Navigation Controls -->
+        <div class="flex items-center justify-between gap-3 mt-6">
+          <button onclick="prevFlashcard()" class="flex-1 py-3.5 px-4 rounded-2xl bg-white hover:bg-slate-50 border-2 border-slate-200 font-display font-bold text-slate-700 shadow-sm active:translate-y-0.5 transition flex items-center justify-center gap-2">
+            <span>⬅️</span> Previous
+          </button>
+          <button onclick="flipFlashcard()" class="py-3.5 px-5 rounded-2xl bg-amber-400 hover:bg-amber-500 border-2 border-amber-500 font-display font-bold text-slate-900 shadow-sm active:translate-y-0.5 transition">
+            🔄 Flip
+          </button>
+          <button onclick="nextFlashcard()" class="flex-1 py-3.5 px-4 rounded-2xl bg-sky-500 hover:bg-sky-600 border-2 border-sky-600 font-display font-bold text-white shadow-sm active:translate-y-0.5 transition flex items-center justify-center gap-2">
+            Next <span>➡️</span>
+          </button>
+        </div>
+
+        <div class="mt-5 text-center">
+          <button onclick="setAppMode('match')" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold text-base shadow-md transition">
+            <span>🎯</span> Ready! Play Matching Game for This Round
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== ROUND COMPLETE MODAL ==================== -->
+    <div id="victoryModal" class="hidden fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center border-4 border-amber-300 shadow-2xl transform transition-all scale-100">
+        <div class="w-20 h-20 mx-auto mb-3 rounded-full bg-amber-100 flex items-center justify-center text-4xl shadow-inner border-2 border-amber-300">
+          🏆
+        </div>
+        <h2 class="font-display font-bold text-2xl sm:text-3xl text-slate-800 mb-1">
+          Awesome Job!
+        </h2>
+        <p id="victoryRoundName" class="text-sm font-bold text-sky-600 mb-4">
+          You completed Round 1!
+        </p>
+
+        <!-- Stars Earned -->
+        <div id="victoryStars" class="flex justify-center gap-2 text-4xl mb-4">
+          <span>⭐</span><span>⭐</span><span>⭐</span>
+        </div>
+
+        <!-- Round Summary Box -->
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 mb-6 grid grid-cols-3 gap-2 text-center">
+          <div>
+            <span class="block text-xs font-bold text-slate-400 uppercase">Matched</span>
+            <span id="statMatched" class="font-display font-bold text-lg text-emerald-600">9/9</span>
+          </div>
+          <div>
+            <span class="block text-xs font-bold text-slate-400 uppercase">Accuracy</span>
+            <span id="statAccuracy" class="font-display font-bold text-lg text-sky-600">100%</span>
+          </div>
+          <div>
+            <span class="block text-xs font-bold text-slate-400 uppercase">Time</span>
+            <span id="statTime" class="font-display font-bold text-lg text-amber-600">00:42</span>
+          </div>
+        </div>
+
+        <!-- Modal Buttons -->
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <button onclick="closeModalAndRestart()" class="flex-1 py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-display font-bold text-base transition">
+            🔄 Play Again
+          </button>
+          <button id="btnNextRoundModal" onclick="goToNextRound()" class="flex-1 py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-display font-bold text-base shadow-md transition">
+            Next Round ➡️
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /**
+     * COMPLETE VERBATIM 49-WORD VOCABULARY DATASET
+     * Exact terms and definitions from the user's Romans Bible study list.
+     */
+    const VOCABULARY_DATA = [
+      { id: 1, term: "apostle", def: "a person who personally knew Jesus and was authorized by God to spread His Word" },
+      { id: 2, term: "Christ", def: "a title for Jesus, the Anointed One sent by God; the Messiah" },
+      { id: 3, term: "Gentile", def: "anyone born outside the family line of Abraham" },
+      { id: 4, term: "gospel", def: "the good news about what God has done to save sinners through the life, death, and resurrection of Jesus" },
+      { id: 5, term: "Jew", def: "anyone born into the family line of Abraham" },
+      { id: 6, term: "resurrection", def: "the act of bringing a person who has died back to life" },
+      { id: 7, term: "depraved", def: "sinful; evil" },
+      { id: 8, term: "divine", def: "of, from, or like God" },
+      { id: 9, term: "eternal", def: "forever; without an end; everlasting" },
+      { id: 10, term: "idol", def: "an object of worship that takes the place of God" },
+      { id: 11, term: "immortal", def: "alive forever; will never die" },
+      { id: 12, term: "mortal", def: "human; will eventually die" },
+      { id: 13, term: "worship (of God)", def: "a heartfelt response recognizing God’s greatness, expressing love and reverence for Him, and living in a way that brings Him honor" },
+      { id: 14, term: "wrath", def: "strong anger, especially to punish someone who has done great wrong" },
+      { id: 15, term: "circumcision", def: "a requirement God gave to Abraham and all the males in his family as a sign to show they were included in God’s promises to Abraham" },
+      { id: 16, term: "condemn", def: "to declare to be evil" },
+      { id: 17, term: "excuse", def: "a reason given to avoid blame or punishment" },
+      { id: 18, term: "favoritism", def: "the act of treating some people better than others" },
+      { id: 19, term: "judge", def: "to decide if something is good or bad and what should happen because of it" },
+      { id: 20, term: "repentance", def: "the act of being sorry for sin, asking God for forgiveness, and turning away from sin to do what pleases God" },
+      { id: 21, term: "condemnation", def: "the state of being declared evil or guilty" },
+      { id: 22, term: "fear (of God)", def: "deep respect, honor, and awe of God; wanting to obey God" },
+      { id: 23, term: "righteous", def: "right or true according to God’s Word; free from guilt or sin" },
+      { id: 24, term: "the law", def: "God’s standard for what is good and right" },
+      { id: 25, term: "atonement", def: "a way of making up for a wrong that has been done so that two parties can come back into right relationship; God’s way of overcoming sin through Jesus’s obedience and death to restore believers to a right relationship with God" },
+      { id: 26, term: "forbearance", def: "patience not to take something that is owed, such as money or respect" },
+      { id: 27, term: "justified", def: "declared righteous by God" },
+      { id: 28, term: "Law and the Prophets", def: "the Old Testament" },
+      { id: 29, term: "redemption", def: "the act of buying back, rescuing, or setting something free" },
+      { id: 30, term: "sacrifice", def: "to give up something valuable for the sake of something else" },
+      { id: 31, term: "boasting", def: "speaking with pride" },
+      { id: 32, term: "impartial", def: "fair; doing right by each person in every situation" },
+      { id: 33, term: "believe", def: "to know something is true and to act or respond" },
+      { id: 34, term: "credited", def: "counted toward; added to an account" },
+      { id: 35, term: "forefather", def: "ancestor; a man earlier in a family line than a grandfather" },
+      { id: 36, term: "transgression", def: "disobedience to a specific law or command; a specific violation of a stated law" },
+      { id: 37, term: "uncircumcised", def: "has not completed the Jewish religious ceremony that symbolized God’s promises to the Jews" },
+      { id: 38, term: "character", def: "tested and proven to have spiritual integrity" },
+      { id: 39, term: "God’s glory", def: "the total of all God’s attributes as revealed in creation, in His dealings with people, and in Jesus Christ" },
+      { id: 40, term: "hope (Christian)", def: "looking forward to and desiring what is sure to come" },
+      { id: 41, term: "peace", def: "freedom from conflict with God; a state of quiet or calm; unity, harmony, and wholeness" },
+      { id: 42, term: "persevere", def: "to continue despite trouble" },
+      { id: 43, term: "reconcile", def: "to restore a relationship; to bring people back together after a disagreement" },
+      { id: 44, term: "shame", def: "a painful feeling caused by guilt or embarrassment" },
+      { id: 45, term: "suffer", def: "to feel pain; to be harmed or hurt in some way" },
+      { id: 46, term: "judgment", def: "punishment for wrongdoing" },
+      { id: 47, term: "provision", def: "a stock of needed materials or supplies" },
+      { id: 48, term: "reign", def: "to rule supremely or have full power and control" },
+      { id: 49, term: "trespass (in the Bible)", def: "a sin" }
+    ];
+
+    /**
+     * ROUND DEFINITIONS (Exact grouping specified)
+     */
+    const ROUNDS = [
+      {
+        id: 'round1',
+        shortTitle: 'Round 1',
+        title: 'Round 1: The Gospel & People of God',
+        icon: '✝️',
+        ids: [1, 2, 3, 4, 5, 6, 8, 9, 11]
+      },
+      {
+        id: 'round2',
+        shortTitle: 'Round 2',
+        title: 'Round 2: God’s Holiness & Human Sin',
+        icon: '👑',
+        ids: [7, 10, 12, 13, 14, 16, 17, 18, 19]
+      },
+      {
+        id: 'round3',
+        shortTitle: 'Round 3',
+        title: 'Round 3: God’s Law & Atonement',
+        icon: '📜',
+        ids: [20, 21, 22, 23, 24, 15, 25, 26, 28]
+      },
+      {
+        id: 'round4',
+        shortTitle: 'Round 4',
+        title: 'Round 4: Faith & Righteousness',
+        icon: '🛡️',
+        ids: [27, 29, 30, 31, 32, 33, 34, 35, 36]
+      },
+      {
+        id: 'round5',
+        shortTitle: 'Round 5',
+        title: 'Round 5: Hope, Peace & God’s Reign',
+        icon: '🕊️',
+        ids: [37, 38, 39, 40, 41, 42, 43, 44, 45]
+      },
+      {
+        id: 'bonus',
+        shortTitle: 'Bonus (4)',
+        title: 'Bonus Lightning Round',
+        icon: '⚡',
+        ids: [46, 47, 48, 49]
+      },
+      {
+        id: 'random8',
+        shortTitle: 'Random 8 Mix',
+        title: 'Random 8 Mix (Endless Replay!)',
+        icon: '🎲',
+        isDynamic: true,
+        count: 8
+      },
+      {
+        id: 'all49',
+        shortTitle: 'All 49 Marathon',
+        title: 'All 49 Words Championship Marathon',
+        icon: '🏆',
+        ids: VOCABULARY_DATA.map(v => v.id)
+      }
+    ];
+
+    /**
+     * GAME STATE
+     */
+    let state = {
+      currentRoundIndex: 0,
+      appMode: 'match', // 'match' | 'study'
+      activeItems: [],
+      shuffledTerms: [],
+      shuffledDefs: [],
+      selectedTermId: null,
+      selectedDefId: null,
+      matchedIds: new Set(),
+      completedRounds: new Set(),
+      attempts: 0,
+      streak: 0,
+      hideMatched: false,
+      soundEnabled: true,
+      timerVisible: true,
+      secondsElapsed: 0,
+      timerInterval: null,
+      timerStarted: false,
+      flashcardIndex: 0,
+      flashcardFlipped: false,
+      isLocked: false // Prevents double-clicking during mismatch animation
+    };
+
+    /**
+     * WEB AUDIO API SOUND EFFECTS (Zero external audio files needed)
+     */
+    let audioCtx = null;
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          audioCtx = new AudioContextClass();
+        }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      if (!state.soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (type === 'select') {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(660, now + 0.08);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.09);
+        } else if (type === 'match') {
+          // Cheerful two-note ascending chime
+          const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.07);
+            gain.gain.setValueAtTime(0.18, now + idx * 0.07);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.07 + 0.25);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.07);
+            osc.stop(now + idx * 0.07 + 0.26);
+          });
+        } else if (type === 'mismatch') {
+          // Gentle low marimba bounce
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.linearRampToValueAtTime(175, now + 0.22);
+          gain.gain.setValueAtTime(0.16, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'win') {
+          // Victory fanfare arpeggio
+          const fanfare = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+          fanfare.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            const start = now + idx * 0.11;
+            const dur = idx === 3 ? 0.5 : 0.2;
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0.2, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(start);
+            osc.stop(start + dur + 0.02);
+          });
+        }
+      } catch (e) {
+        // Silently ignore audio errors if blocked by browser policy
+      }
+    }
+
+    /**
+     * UTILITY: Fisher-Yates Shuffle
+     */
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    /**
+     * INITIALIZATION & ROUND LOADING
+     */
+    function init() {
+      renderRoundSelector();
+      loadRound(0);
+      window.addEventListener('resize', resizeConfettiCanvas);
+      resizeConfettiCanvas();
+    }
+
+    function renderRoundSelector() {
+      const container = document.getElementById('roundSelectorBar');
+      container.innerHTML = '';
+
+      ROUNDS.forEach((round, index) => {
+        const isActive = index === state.currentRoundIndex;
+        const isDone = state.completedRounds.has(round.id);
+
+        const btn = document.createElement('button');
+        btn.onclick = () => loadRound(index);
+        btn.className = `shrink-0 px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 border-2 ${
+          isActive
+            ? 'bg-sky-500 text-white border-sky-600 shadow-sm scale-[1.02]'
+            : isDone
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+              : 'bg-white text-slate-600 border-slate-200 hover:border-sky-300 hover:text-sky-700'
+        }`;
+
+        btn.innerHTML = `
+          <span>${isDone && !isActive ? '✅' : round.icon}</span>
+          <span>${round.shortTitle}</span>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    function loadRound(index) {
+      state.currentRoundIndex = index;
+      const round = ROUNDS[index];
+
+      // Determine items for this round
+      if (round.isDynamic) {
+        state.activeItems = shuffleArray(VOCABULARY_DATA).slice(0, round.count);
+      } else {
+        state.activeItems = round.ids.map(id => VOCABULARY_DATA.find(item => item.id === id));
+      }
+
+      // Shuffle left and right columns independently
+      state.shuffledTerms = shuffleArray(state.activeItems);
+      state.shuffledDefs = shuffleArray(state.activeItems);
+
+      // Reset gameplay state
+      state.selectedTermId = null;
+      state.selectedDefId = null;
+      state.matchedIds = new Set();
+      state.attempts = 0;
+      state.streak = 0;
+      state.isLocked = false;
+      state.flashcardIndex = 0;
+      state.flashcardFlipped = false;
+
+      resetTimer();
+      renderRoundSelector();
+      updateHeaderAndStats();
+      setFeedback('Pick any word or definition to start matching!', 'neutral');
+
+      if (state.appMode === 'match') {
+        renderMatchBoard();
+      } else {
+        renderFlashcard();
+      }
+    }
+
+    function restartCurrentRound() {
+      playSound('select');
+      loadRound(state.currentRoundIndex);
+    }
+
+    /**
+     * TIMER MANAGEMENT
+     */
+    function startTimerIfNeeded() {
+      if (state.timerStarted) return;
+      state.timerStarted = true;
+      state.timerInterval = setInterval(() => {
+        state.secondsElapsed++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+      }
+    }
+
+    function resetTimer() {
+      stopTimer();
+      state.secondsElapsed = 0;
+      state.timerStarted = false;
+      updateTimerDisplay();
+    }
+
+    function formatTime(totalSeconds) {
+      const mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+      const secs = (totalSeconds % 60).toString().padStart(2, '0');
+      return `${mins}:${secs}`;
+    }
+
+    function updateTimerDisplay() {
+      const display = document.getElementById('timerDisplay');
+      if (state.timerVisible) {
+        display.textContent = formatTime(state.secondsElapsed);
+      } else {
+        display.textContent = 'Untimed';
+      }
+    }
+
+    function toggleTimerVisibility() {
+      state.timerVisible = !state.timerVisible;
+      updateTimerDisplay();
+    }
+
+    function toggleSound() {
+      state.soundEnabled = !state.soundEnabled;
+      document.getElementById('soundIcon').textContent = state.soundEnabled ? '🔊' : '🔇';
+      if (state.soundEnabled) playSound('select');
+    }
+
+    function toggleHideMatched() {
+      state.hideMatched = document.getElementById('chkHideMatched').checked;
+      renderMatchBoard();
+    }
+
+    /**
+     * APP MODE SWITCHER (Match Game vs Study Flashcards)
+     */
+    function setAppMode(mode) {
+      state.appMode = mode;
+      const btnMatch = document.getElementById('btnModeMatch');
+      const btnStudy = document.getElementById('btnModeStudy');
+      const matchView = document.getElementById('matchGameView');
+      const studyView = document.getElementById('studyFlashcardsView');
+      const statsBar = document.getElementById('matchStatsBar');
+      const feedback = document.getElementById('feedbackBanner');
+
+      if (mode === 'match') {
+        btnMatch.className = 'px-3.5 py-1.5 rounded-xl text-sm font-bold transition-all bg-sky-500 text-white shadow-sm flex items-center gap-1.5';
+        btnStudy.className = 'px-3.5 py-1.5 rounded-xl text-sm font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5';
+        matchView.classList.remove('hidden');
+        statsBar.classList.remove('hidden');
+        feedback.classList.remove('hidden');
+        studyView.classList.add('hidden');
+        renderMatchBoard();
+      } else {
+        btnStudy.className = 'px-3.5 py-1.5 rounded-xl text-sm font-bold transition-all bg-amber-500 text-white shadow-sm flex items-center gap-1.5';
+        btnMatch.className = 'px-3.5 py-1.5 rounded-xl text-sm font-bold transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5';
+        matchView.classList.add('hidden');
+        statsBar.classList.add('hidden');
+        feedback.classList.add('hidden');
+        studyView.classList.remove('hidden');
+        state.flashcardIndex = 0;
+        state.flashcardFlipped = false;
+        renderFlashcard();
+      }
+    }
+
+    /**
+     * UI UPDATES & FEEDBACK
+     */
+    function updateHeaderAndStats() {
+      const round = ROUNDS[state.currentRoundIndex];
+      document.getElementById('currentRoundTitle').textContent = round.title;
+      document.getElementById('studyRoundLabel').textContent = round.title;
+      document.getElementById('matchedCounter').textContent = `${state.matchedIds.size} / ${state.activeItems.length}`;
+      document.getElementById('streakCounter').textContent = state.streak;
+    }
+
+    function setFeedback(message, type = 'neutral') {
+      const banner = document.getElementById('feedbackBanner');
+      banner.textContent = message;
+
+      const styles = {
+        neutral: 'bg-sky-100/80 text-sky-800 border-sky-200',
+        selected: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+        success: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+        error: 'bg-rose-100 text-rose-800 border-rose-300'
+      };
+
+      banner.className = `mb-4 px-4 py-2.5 rounded-2xl text-center font-bold text-sm sm:text-base transition-all duration-200 border ${styles[type] || styles.neutral}`;
+    }
+
+    /**
+     * MATCH GAME RENDERING & INTERACTION
+     */
+    function renderMatchBoard() {
+      const termsContainer = document.getElementById('termsList');
+      const defsContainer = document.getElementById('definitionsList');
+
+      termsContainer.innerHTML = '';
+      defsContainer.innerHTML = '';
+
+      // Render Left Column: Terms
+      state.shuffledTerms.forEach(item => {
+        const isMatched = state.matchedIds.has(item.id);
+        if (isMatched && state.hideMatched) return;
+
+        const isSelected = state.selectedTermId === item.id;
+
+        const btn = document.createElement('button');
+        btn.id = `term-card-${item.id}`;
+        btn.disabled = isMatched;
+        btn.onclick = () => handleTermClick(item.id);
+
+        let cardClasses = 'game-card w-full text-left px-4 py-3.5 rounded-2xl border-2 font-display font-bold text-base sm:text-lg flex items-center justify-between gap-2 ';
+        if (isMatched) {
+          cardClasses += 'card-matched bg-emerald-100/90 border-emerald-400 text-emerald-900 opacity-80 cursor-default';
+        } else if (isSelected) {
+          cardClasses += 'card-selected bg-sky-500 border-sky-600 text-white';
+        } else {
+          cardClasses += 'bg-white hover:bg-sky-50 border-slate-200 hover:border-sky-300 text-slate-800 cursor-pointer';
+        }
+
+        btn.className = cardClasses;
+        btn.innerHTML = `
+          <span>${item.term}</span>
+          ${isMatched ? '<span class="text-emerald-600 text-lg shrink-0">✅</span>' : isSelected ? '<span class="text-white text-sm shrink-0">👈 Selected</span>' : ''}
+        `;
+        termsContainer.appendChild(btn);
+      });
+
+      // Render Right Column: Definitions
+      state.shuffledDefs.forEach(item => {
+        const isMatched = state.matchedIds.has(item.id);
+        if (isMatched && state.hideMatched) return;
+
+        const isSelected = state.selectedDefId === item.id;
+
+        const btn = document.createElement('button');
+        btn.id = `def-card-${item.id}`;
+        btn.disabled = isMatched;
+        btn.onclick = () => handleDefClick(item.id);
+
+        let cardClasses = 'game-card w-full text-left px-4 py-3 rounded-2xl border-2 font-semibold text-sm sm:text-base leading-snug flex items-center justify-between gap-3 ';
+        if (isMatched) {
+          cardClasses += 'card-matched bg-emerald-100/90 border-emerald-400 text-emerald-900 opacity-80 cursor-default';
+        } else if (isSelected) {
+          cardClasses += 'card-selected bg-amber-400 border-amber-500 text-slate-900';
+        } else {
+          cardClasses += 'bg-white hover:bg-amber-50 border-slate-200 hover:border-amber-300 text-slate-700 cursor-pointer';
+        }
+
+        btn.className = cardClasses;
+        btn.innerHTML = `
+          <span>${item.def}</span>
+          ${isMatched ? '<span class="text-emerald-600 text-lg shrink-0">✅</span>' : ''}
+        `;
+        defsContainer.appendChild(btn);
+      });
+    }
+
+    function handleTermClick(id) {
+      if (state.isLocked || state.matchedIds.has(id)) return;
+      startTimerIfNeeded();
+
+      // Toggle off if clicking same selected term
+      if (state.selectedTermId === id) {
+        state.selectedTermId = null;
+        playSound('select');
+        setFeedback('Selection cleared. Pick a word or definition!', 'neutral');
+        renderMatchBoard();
+        return;
+      }
+
+      state.selectedTermId = id;
+      playSound('select');
+
+      if (state.selectedDefId !== null) {
+        evaluatePair();
+      } else {
+        const termObj = state.activeItems.find(i => i.id === id);
+        setFeedback(`Selected word: "${termObj.term}" — Now tap its matching definition!`, 'selected');
+        renderMatchBoard();
+      }
+    }
+
+    function handleDefClick(id) {
+      if (state.isLocked || state.matchedIds.has(id)) return;
+      startTimerIfNeeded();
+
+      // Toggle off if clicking same selected definition
+      if (state.selectedDefId === id) {
+        state.selectedDefId = null;
+        playSound('select');
+        setFeedback('Selection cleared. Pick a word or definition!', 'neutral');
+        renderMatchBoard();
+        return;
+      }
+
+      state.selectedDefId = id;
+      playSound('select');
+
+      if (state.selectedTermId !== null) {
+        evaluatePair();
+      } else {
+        setFeedback('Definition selected! Now tap the matching Bible word on the left.', 'selected');
+        renderMatchBoard();
+      }
+    }
+
+    function evaluatePair() {
+      state.attempts++;
+      const tId = state.selectedTermId;
+      const dId = state.selectedDefId;
+
+      if (tId === dId) {
+        // MATCH!
+        state.matchedIds.add(tId);
+        state.streak++;
+        state.selectedTermId = null;
+        state.selectedDefId = null;
+
+        playSound('match');
+        const matchedItem = state.activeItems.find(i => i.id === tId);
+        setFeedback(`🎉 Great match! "${matchedItem.term}" is correct!`, 'success');
+
+        updateHeaderAndStats();
+        renderMatchBoard();
+
+        // Add subtle pop animation to newly matched cards
+        const tEl = document.getElementById(`term-card-${tId}`);
+        const dEl = document.getElementById(`def-card-${dId}`);
+        if (tEl) tEl.classList.add('animate-pop');
+        if (dEl) dEl.classList.add('animate-pop');
+
+        // Check for Round Victory
+        if (state.matchedIds.size === state.activeItems.length) {
+          handleRoundComplete();
+        }
+      } else {
+        // MISMATCH!
+        state.isLocked = true;
+        state.streak = 0;
+        updateHeaderAndStats();
+        playSound('mismatch');
+        renderMatchBoard();
+
+        const tEl = document.getElementById(`term-card-${tId}`);
+        const dEl = document.getElementById(`def-card-${dId}`);
+
+        if (tEl) {
+          tEl.classList.add('animate-shake', '!bg-rose-100', '!border-rose-400', '!text-rose-900');
+        }
+        if (dEl) {
+          dEl.classList.add('animate-shake', '!bg-rose-100', '!border-rose-400', '!text-rose-900');
+        }
+
+        setFeedback('Not quite! Read carefully and try another pair.', 'error');
+
+        setTimeout(() => {
+          state.selectedTermId = null;
+          state.selectedDefId = null;
+          state.isLocked = false;
+          renderMatchBoard();
+        }, 620);
+      }
+    }
+
+    /**
+     * ROUND COMPLETION & CELEBRATION
+     */
+    function handleRoundComplete() {
+      stopTimer();
+      const round = ROUNDS[state.currentRoundIndex];
+      state.completedRounds.add(round.id);
+      renderRoundSelector();
+
+      playSound('win');
+      launchConfetti();
+
+      const totalPairs = state.activeItems.length;
+      const accuracy = Math.min(100, Math.round((totalPairs / Math.max(totalPairs, state.attempts)) * 100));
+
+      let starsHtml = '<span>⭐</span><span>⭐</span><span>⭐</span>';
+      if (accuracy < 65) {
+        starsHtml = '<span>⭐</span><span class="opacity-30">⭐</span><span class="opacity-30">⭐</span>';
+      } else if (accuracy < 85) {
+        starsHtml = '<span>⭐</span><span>⭐</span><span class="opacity-30">⭐</span>';
+      }
+
+      document.getElementById('victoryRoundName').textContent = `You completed ${round.title}!`;
+      document.getElementById('victoryStars').innerHTML = starsHtml;
+      document.getElementById('statMatched').textContent = `${totalPairs}/${totalPairs}`;
+      document.getElementById('statAccuracy').textContent = `${accuracy}%`;
+      document.getElementById('statTime').textContent = formatTime(state.secondsElapsed);
+
+      const nextBtn = document.getElementById('btnNextRoundModal');
+      if (state.currentRoundIndex < ROUNDS.length - 1) {
+        nextBtn.textContent = `Next: ${ROUNDS[state.currentRoundIndex + 1].shortTitle} ➡️`;
+      } else {
+        nextBtn.textContent = `Back to Round 1 🔄`;
+      }
+
+      setTimeout(() => {
+        document.getElementById('victoryModal').classList.remove('hidden');
+      }, 450);
+    }
+
+    function closeModalAndRestart() {
+      document.getElementById('victoryModal').classList.add('hidden');
+      loadRound(state.currentRoundIndex);
+    }
+
+    function goToNextRound() {
+      document.getElementById('victoryModal').classList.add('hidden');
+      const nextIdx = (state.currentRoundIndex + 1) % ROUNDS.length;
+      loadRound(nextIdx);
+    }
+
+    /**
+     * STUDY FLASHCARDS LOGIC
+     */
+    function renderFlashcard() {
+      const total = state.activeItems.length;
+      const item = state.activeItems[state.flashcardIndex];
+      const inner = document.getElementById('flashcardInner');
+
+      document.getElementById('flashcardCounter').textContent = `Card ${state.flashcardIndex + 1} of ${total}`;
+      document.getElementById('flashcardTerm').textContent = item.term;
+      document.getElementById('flashcardBackTermBadge').textContent = item.term;
+      document.getElementById('flashcardDef').textContent = item.def;
+
+      if (state.flashcardFlipped) {
+        inner.classList.add('rotate-y-180');
+      } else {
+        inner.classList.remove('rotate-y-180');
+      }
+    }
+
+    function flipFlashcard() {
+      playSound('select');
+      state.flashcardFlipped = !state.flashcardFlipped;
+      renderFlashcard();
+    }
+
+    function nextFlashcard() {
+      playSound('select');
+      state.flashcardFlipped = false;
+      state.flashcardIndex = (state.flashcardIndex + 1) % state.activeItems.length;
+      renderFlashcard();
+    }
+
+    function prevFlashcard() {
+      playSound('select');
+      state.flashcardFlipped = false;
+      state.flashcardIndex = (state.flashcardIndex - 1 + state.activeItems.length) % state.activeItems.length;
+      renderFlashcard();
+    }
+
+    /**
+     * CONFETTI PARTICLE CELEBRATION ENGINE
+     */
+    const confettiCanvas = document.getElementById('confettiCanvas');
+    const cCtx = confettiCanvas.getContext('2d');
+    let particles = [];
+    let confettiAnimId = null;
+
+    function resizeConfettiCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+
+    function launchConfetti() {
+      const colors = ['#38bdf8', '#fbbf24', '#34d399', '#f472b6', '#a78bfa', '#fb923c'];
+      particles = [];
+
+      for (let i = 0; i < 120; i++) {
+        particles.push({
+          x: confettiCanvas.width * 0.5 + (Math.random() - 0.5) * 200,
+          y: confettiCanvas.height * 0.45,
+          vx: (Math.random() - 0.5) * 16,
+          vy: (Math.random() - 1.1) * 16 - 4,
+          size: Math.random() * 9 + 5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          rotation: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 12,
+          gravity: 0.35
+        });
+      }
+
+      if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+      animateConfetti();
+    }
+
+    function animateConfetti() {
+      cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += p.gravity;
+        p.vx *= 0.985;
+        p.rotation += p.vRot;
+
+        cCtx.save();
+        cCtx.translate(p.x, p.y);
+        cCtx.rotate((p.rotation * Math.PI) / 180);
+        cCtx.fillStyle = p.color;
+        cCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.65);
+        cCtx.restore();
+      });
+
+      particles = particles.filter(p => p.y < confettiCanvas.height + 30);
+
+      if (particles.length > 0) {
+        confettiAnimId = requestAnimationFrame(animateConfetti);
+      } else {
+        cCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+      }
+    }
+
+    // Boot up the game on page load
+    window.onload = init;
+  </script>
+</body>
+</html>
